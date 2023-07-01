@@ -33,7 +33,7 @@ void AddStall(unsigned delta) {
 void IF() { // Finished writing IF
     if (halt) return;
     unsigned int cmd = parser.GetCommand();
-    // cout << std::hex << cmd << endl;
+    // cout << std::setfill('0') <<  std::setw(8) << std::hex << std::uppercase << cmd << endl;
     if (cmd == 0x0ff00513u) {
         halt = true;
         return;

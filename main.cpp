@@ -8,8 +8,8 @@
 #include "forwarding.h"
 extern unsigned int reg[32], mem[300003], pc;
 signed main() {
-    // freopen("sample.data", "r", stdin);
-
+    // freopen("array_test1.data", "r", stdin);
+//    freopen("array_test1.out", "w", stdout);
     pc = 0u;
     parser.Init();
     while (true) {

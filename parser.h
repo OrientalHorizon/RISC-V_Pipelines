@@ -46,6 +46,7 @@ public:
 
     unsigned int GetCommand() {
         unsigned int ret = mem[pc] | (mem[pc + 1] << 8u) | (mem[pc + 2] << 16u) | (mem[pc + 3] << 24u);
+        // cout << std::dec << pc << endl;
         pc += 4;
         return ret;
     }

@@ -54,10 +54,10 @@ public:
         else if (realJump) {
             // 应该跳，预测错误
             predictor.Jump();
-            pc += op.imm - 4;
+            pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                pc -= 4;
+                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -66,7 +66,8 @@ public:
         else {
             // 不应该跳，预测错误
             predictor.NotJump();
-            pc -= op.imm - 4;
+            pc = op.others;
+            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -88,10 +89,11 @@ public:
         else if (realJump) {
             // 应该跳，预测错误
             predictor.Jump();
-            pc += op.imm - 4;
+            pc = op.others;
+            // pc += op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                pc -= 4;
+                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -100,7 +102,8 @@ public:
         else {
             // 不应该跳，预测错误
             predictor.NotJump();
-            pc -= op.imm - 4;
+            pc = op.others;
+            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -122,10 +125,11 @@ public:
         else if (realJump) {
             // 应该跳，预测错误
             predictor.Jump();
-            pc += op.imm - 4;
+            pc = op.others;
+            // pc += op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                pc -= 4;
+                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -134,7 +138,8 @@ public:
         else {
             // 不应该跳，预测错误
             predictor.NotJump();
-            pc -= op.imm - 4;
+            pc = op.others;
+            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -156,10 +161,11 @@ public:
         else if (realJump) {
             // 应该跳，预测错误
             predictor.Jump();
-            pc += op.imm - 4;
+            pc = op.others;
+            // pc += op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                pc -= 4;
+                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -168,7 +174,8 @@ public:
         else {
             // 不应该跳，预测错误
             predictor.NotJump();
-            pc -= op.imm - 4;
+            pc = op.others;
+            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -190,10 +197,11 @@ public:
         else if (realJump) {
             // 应该跳，预测错误
             predictor.Jump();
-            pc += op.imm - 4;
+            pc = op.others;
+            // pc += op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                pc -= 4;
+                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -202,7 +210,8 @@ public:
         else {
             // 不应该跳，预测错误
             predictor.NotJump();
-            pc -= op.imm - 4;
+            pc = op.others;
+            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -224,10 +233,11 @@ public:
         else if (realJump) {
             // 应该跳，预测错误
             predictor.Jump();
-            pc += op.imm - 4;
+            pc = op.others;
+            // pc += (op.imm - 4);
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                pc -= 4;
+                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -236,7 +246,8 @@ public:
         else {
             // 不应该跳，预测错误
             predictor.NotJump();
-            pc -= op.imm - 4;
+            pc = op.others;
+            // pc -= (op.imm - 4);
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
