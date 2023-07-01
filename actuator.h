@@ -261,18 +261,21 @@ void Mem() {
             case 1: {
                 unsigned val = mem[cur.addr];
                 if (cur.extend) val = extend(val, 7);
+                PreChangeReg(cur.val, val);
                 writeReg.push(std::make_pair(cur.val, val));
                 break;
             }
             case 2: {
                 unsigned val = mem[cur.addr] | (mem[cur.addr + 1] << 8);
                 if (cur.extend) val = extend(val, 15);
+                PreChangeReg(cur.val, val);
                 writeReg.push(std::make_pair(cur.val, val));
                 break;
             }
             case 4: {
                 unsigned val = mem[cur.addr] | (mem[cur.addr + 1] << 8)
                         | (mem[cur.addr + 2] << 16) | (mem[cur.addr + 3] << 24);
+                PreChangeReg(cur.val, val);
                 writeReg.push(std::make_pair(cur.val, val));
                 break;
             }
