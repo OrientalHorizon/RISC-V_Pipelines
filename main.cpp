@@ -17,19 +17,17 @@ signed main() {
         // printf("%d\n", halt);
         reg[0] = 0u;
         if (stall) {
-            Decode();
-            EX();
-            Mem();
             WB();
+            Mem();
+            EX();
+            Decode();
             --stall;
         }
-        IF();
-        Decode();
-        EX();
-        Mem();
         WB();
-
-
+        Mem();
+        EX();
+        Decode();
+        IF();
 //        cout << decodeQueue.empty() << executeQueue.empty() << memQueue.empty() << writeReg.empty()
 //        << endl;
         if (halt && memQueue.empty() && writeReg.empty()
