@@ -22,7 +22,13 @@ void ALUCheckReg(unsigned pos, unsigned &val) {
 }
 void PreChangeReg(unsigned pos, unsigned val) {
     assert(pos < 32 && pos >= 0);
-    curRegNum = pos, curRegVal = val;
+    if (pos == 0) {
+        reg[0] = 0u;
+        curRegNum = 0, curRegVal = 0u;
+    }
+    else {
+        curRegNum = pos, curRegVal = val;
+    }
 }
 
 //unsigned curMemAddrL, curMemAddrR, curMemVal;

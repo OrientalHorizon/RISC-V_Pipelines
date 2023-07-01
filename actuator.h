@@ -31,7 +31,9 @@ void AddStall(unsigned delta) {
 }
 
 void IF() { // Finished writing IF
+    if (halt) return;
     unsigned int cmd = parser.GetCommand();
+    // cout << std::hex << cmd << endl;
     if (cmd == 0x0ff00513u) {
         halt = true;
         return;
@@ -52,7 +54,7 @@ void IF() { // Finished writing IF
         }
     }
     else if (opcode == 0b0000011) {
-        // Stall three cycles
+        // Load: Stall three cycles
         decodeQueue.push(std::make_pair(cmd, std::make_pair(false, 0u)));
         AddStall(3u);
     }

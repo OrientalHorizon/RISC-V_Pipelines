@@ -42,7 +42,7 @@ private:
         operation ret;
         ret.opcode = cmd & 0x7Fu;
         ret.rd = (cmd >> 7u) & 0x1Fu;
-        ret.imm = cmd & 0xfffff000u;
+        ret.imm = cmd >> 12u;
         return ret;
     }
 public:
@@ -116,6 +116,7 @@ public:
         return ret;
     }
     operation STypeDecode(unsigned cmd) {
+        // cout << "reg[2] = " << std::dec << reg[2] << endl;
         operation ret; ret.opcode = cmd & 0x7fu;
         ret.rs1 = (cmd >> 15u) & 0x1Fu;
         ret.rs2 = (cmd >> 20u) & 0x1Fu;
@@ -127,6 +128,7 @@ public:
             case 0x1u: ret.op = SH; break;
             case 0x2u: ret.op = SW; break;
         }
+        return ret;
     }
     operation ITypeDecode(unsigned cmd) {
         operation ret; ret.opcode = cmd & 0x7fu;

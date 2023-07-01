@@ -18,6 +18,7 @@ extern Predictor predictor;
 class Executor {
 public:
     void LUI(const operation &op) {
+        // cout << std::dec << op.rd << " " << (op.imm << 12u) << endl;
         PreChangeReg(op.rd, op.imm << 12u);
         writeReg.push(std::make_pair(op.rd, op.imm << 12u));
     }
@@ -33,11 +34,12 @@ public:
         pc += op.imm - 4;
     }
     void JALR(const operation &op) {
-        if (op.rd) PreChangeReg(op.rd, pc);
+        PreChangeReg(op.rd, pc);
         unsigned val = op.val1;
         ALUCheckReg(op.rs1, val);
         pc = val + op.imm;
         pc >>= 1u; pc <<= 1u;
+        writeReg.push(std::make_pair(op.rd, pc));
     }
     void BEQ(operation op) {
         // 看预测对不对
@@ -285,6 +287,7 @@ public:
     void SW(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
+        // cout << std::dec << op.rs1 << " " << op.imm << endl;
         MemOP cur(false, op.val1 + op.imm, 4, op.val2, false);
         memQueue.push(cur);
     }
@@ -292,46 +295,55 @@ public:
     void ADDI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 + op.imm;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SLTI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         bool val = ((signed)op.val1 < (signed)op.imm);
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SLTIU(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         bool val = (op.val1 < op.imm);
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void XORI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 ^ op.imm;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void ORI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 | op.imm;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void ANDI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 & op.imm;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SLLI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 << op.rs2;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SRLI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 >> op.rs2;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SRAI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = (signed)op.val1 >> (signed)op.rs2;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
 
@@ -339,60 +351,70 @@ public:
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         unsigned val = op.val1 + op.val2;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SUB(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         unsigned val = op.val1 - op.val2;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SLL(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         unsigned val = op.val1 << (op.val2 & 0x1Fu);
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SLT(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         bool val = ((signed)op.val1 < (signed)op.val2);
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SLTU(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         bool val = (op.val1 < op.val2);
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void XOR(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         unsigned val = op.val1 ^ op.val2;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SRL(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         unsigned val = op.val1 >> (op.val2 & 0x1Fu);
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void SRA(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         unsigned val = (signed)op.val1 >> (signed)(op.val2 & 0x1Fu);
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void OR(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         unsigned val = op.val1 | op.val2;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
     void AND(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         unsigned val = op.val1 & op.val2;
+        PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
     }
 };

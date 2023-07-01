@@ -45,7 +45,7 @@ public:
     }
 
     unsigned int GetCommand() {
-        unsigned int ret = mem[pc];
+        unsigned int ret = mem[pc] | (mem[pc + 1] << 8u) | (mem[pc + 2] << 16u) | (mem[pc + 3] << 24u);
         pc += 4;
         return ret;
     }
