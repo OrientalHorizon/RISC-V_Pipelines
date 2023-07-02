@@ -14,18 +14,18 @@ signed main() {
         reg[0] = 0u;
         if (stall) {
             Decode();
-            Mem();
-            Writeback();
             ALU();
+            Writeback();
+            Mem();
             --stall;
             ++loop;
             continue;
         }
-        ALU();
+        Mem();
+        Decode();
         Writeback();
         InstructionFetch();
-        Decode();
-        Mem();
+        ALU();
 //        assert(memQueue.size() - memCycle.size() == 0);
 //        assert(writeReg.size() - writeRegCycle.size() == 0);
 //        assert(decodeQueue.size() - decodeCycle.size() == 0);
