@@ -7,7 +7,7 @@
 #include "actuator.h"
 
 signed main() {
-    // freopen("multiarray.data", "r", stdin);
+    // freopen("sample.data", "r", stdin);
     // freopen("array_test1.out", "w", stdout);
     pc = 0u;
     parser.Init();
@@ -21,6 +21,8 @@ signed main() {
             ALU();
             Decode();
             --stall;
+            ++loop;
+            continue;
         }
         Writeback();
         Mem();
@@ -33,6 +35,7 @@ signed main() {
         ++loop;
         // cout << std::dec << (reg[10] & 0xFFu) << endl;
     }
+    cout << loop << endl;
     cout << std::dec << (reg[10] & 0xFFu) << endl;
     // printf("%lf\n", predictor.GetAccuracy());
     return 0;
