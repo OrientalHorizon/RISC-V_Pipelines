@@ -7,32 +7,30 @@
 #include "actuator.h"
 
 signed main() {
-//    freopen("array_test1.data", "r", stdin);
-//    freopen("array_test1.out", "w", stdout);
+    // freopen("pi.data", "r", stdin);
     pc = 0u;
     parser.Init();
     while (true) {
-        // cout << "reg[2] = " << std::dec << reg[2] << endl;
-        // printf("%d\n", halt);
         reg[0] = 0u;
         if (stall) {
-            Writeback();
-            Mem();
-            ALU();
             Decode();
+            Mem();
+            Writeback();
+            ALU();
             --stall;
             ++loop;
             continue;
         }
-        Writeback();
-        Mem();
         ALU();
-        Decode();
+        Writeback();
         InstructionFetch();
-        assert(memQueue.size() - memCycle.size() == 0);
-        assert(writeReg.size() - writeRegCycle.size() == 0);
-        assert(decodeQueue.size() - decodeCycle.size() == 0);
-        assert(executeQueue.size() - executeCycle.size() == 0);
+        Decode();
+        Mem();
+//        assert(memQueue.size() - memCycle.size() == 0);
+//        assert(writeReg.size() - writeRegCycle.size() == 0);
+//        assert(decodeQueue.size() - decodeCycle.size() == 0);
+//        assert(executeQueue.size() - executeCycle.size() == 0);
+        // cout << decodeQueue.size() << " " << executeQueue.size() << " " << memQueue.size() << " " << writeReg.size() << endl;
         // cout << memQueue.size() - memCycle.size() << " " << writeReg.size() - writeRegCycle.size() << endl;
         // cout << decodeQueue.size() - decodeCycle.size() << " " << executeQueue.size() - executeCycle.size() << endl;
         if (_end && memQueue.empty() && writeReg.empty()

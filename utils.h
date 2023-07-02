@@ -52,5 +52,12 @@ struct operation {
     val1(0u), val2(0u), op(LUI), isBranch(false), jump(false), others(0u) {}
 };
 
+struct writeRegOP {
+    unsigned num, val, tim;
+    bool operator>(const writeRegOP &rhs) const {
+        return tim < rhs.tim;
+    }
+    explicit writeRegOP(const unsigned _num = 0u, const unsigned _val = 0u, const unsigned _tim = 0u) : num(_num), val(_val), tim(_tim) {}
+};
 
 #endif //INC_2_PIPELINE_UTILS_H
