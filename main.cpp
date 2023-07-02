@@ -7,7 +7,7 @@
 #include "actuator.h"
 
 signed main() {
-    // freopen("sample.data", "r", stdin);
+    freopen("superloop.data", "r", stdin);
     // freopen("array_test1.out", "w", stdout);
     pc = 0u;
     parser.Init();
@@ -29,13 +29,14 @@ signed main() {
         ALU();
         Decode();
         InstructionFetch();
-
+        // cout << memQueue.size() - memCycle.size() << " " << writeReg.size() - writeRegCycle.size() << endl;
+        // cout << decodeQueue.size() - decodeCycle.size() << " " << executeQueue.size() - executeCycle.size() << endl;
         if (_end && memQueue.empty() && writeReg.empty()
         && decodeQueue.empty() && executeQueue.empty()) break;
         ++loop;
         // cout << std::dec << (reg[10] & 0xFFu) << endl;
     }
-    cout << loop << endl;
+    // cout << loop << endl;
     cout << std::dec << (reg[10] & 0xFFu) << endl;
     // printf("%lf\n", predictor.GetAccuracy());
     return 0;

@@ -13,6 +13,7 @@ extern std::queue<std::pair<int, unsigned> > writeReg;
 extern std::queue<std::pair<unsigned, std::pair<bool, unsigned> > > decodeQueue;
 extern std::queue<operation> executeQueue;
 extern std::queue<MemOP> memQueue;
+extern std::queue<unsigned> decodeCycle;
 extern std::queue<unsigned> memCycle;
 extern std::queue<unsigned> writeRegCycle;
 extern Predictor predictor;
@@ -63,6 +64,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -74,6 +76,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -97,6 +100,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -108,6 +112,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -130,6 +135,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -141,6 +147,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -163,6 +170,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -174,6 +182,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -196,6 +205,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -207,6 +217,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -229,6 +240,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -240,6 +252,7 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
+                decodeCycle.pop();
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();

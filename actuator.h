@@ -50,25 +50,29 @@ void InstructionFetch() { // Finished writing IF
             // TODO: get offset
             decodeQueue.push(std::make_pair(cmd, std::make_pair(true, pc)));
             pc += offset - 4;
+            decodeCycle.push(loop + 1);
         }
         else {
             decodeQueue.push(std::make_pair(cmd, std::make_pair(false, pc + offset - 4)));
+            decodeCycle.push(loop + 1);
         }
     }
     else if (opcode == 0b0000011) {
         // Load: Stall three cycles
         decodeQueue.push(std::make_pair(cmd, std::make_pair(false, 0u)));
+        decodeCycle.push(loop + 1);
         AddStall(3u);
     }
     else if (opcode == 0b1101111 || opcode == 0b1100111) {
         // JAL & JALR
         decodeQueue.push(std::make_pair(cmd, std::make_pair(false, 0u)));
+        decodeCycle.push(loop + 1);
         AddStall(2u);
     }
     else {
         decodeQueue.push(std::make_pair(cmd, std::make_pair(false, 0u)));
+        decodeCycle.push(loop + 1);
     }
-    decodeCycle.push(loop + 1);
 }
 
 void Writeback() { // Finished writing WB
