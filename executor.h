@@ -13,6 +13,8 @@ extern std::queue<std::pair<int, unsigned> > writeReg;
 extern std::queue<std::pair<unsigned, std::pair<bool, unsigned> > > decodeQueue;
 extern std::queue<operation> executeQueue;
 extern std::queue<MemOP> memQueue;
+extern std::queue<unsigned> memCycle;
+extern std::queue<unsigned> writeRegCycle;
 extern Predictor predictor;
 
 class Executor {
@@ -21,17 +23,20 @@ public:
         // cout << std::dec << op.rd << " " << (op.imm << 12u) << endl;
         PreChangeReg(op.rd, op.imm << 12u);
         writeReg.push(std::make_pair(op.rd, op.imm << 12u));
+        writeRegCycle.push(loop + 2);
     }
     void AUIPC(const operation &op) {
         unsigned val = (op.imm << 12u) + pc - 4;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 2);
     }
     void JAL(const operation &op) {
         PreChangeReg(op.rd, pc);
         // 强制跳转！
         writeReg.push(std::make_pair(op.rd, pc));
         pc += op.imm - 4;
+        writeRegCycle.push(loop + 2);
     }
     void JALR(const operation &op) {
         PreChangeReg(op.rd, pc);
@@ -40,6 +45,7 @@ public:
         pc = val + op.imm;
         pc >>= 1u; pc <<= 1u;
         writeReg.push(std::make_pair(op.rd, pc));
+        writeRegCycle.push(loop + 2);
     }
     void BEQ(operation op) {
         // 看预测对不对
@@ -57,7 +63,6 @@ public:
             pc = op.others;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -67,7 +72,6 @@ public:
             // 不应该跳，预测错误
             predictor.NotJump();
             pc = op.others;
-            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -80,6 +84,7 @@ public:
         // 看预测对不对
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
+        // Forwarding，从上一个 ALU 连到下一个 ALU，后同
         bool realJump = (op.val1 != op.val2);
         if (realJump == op.jump) {
             if (op.jump) predictor.Jump();
@@ -90,10 +95,8 @@ public:
             // 应该跳，预测错误
             predictor.Jump();
             pc = op.others;
-            // pc += op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -103,7 +106,6 @@ public:
             // 不应该跳，预测错误
             predictor.NotJump();
             pc = op.others;
-            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -126,10 +128,8 @@ public:
             // 应该跳，预测错误
             predictor.Jump();
             pc = op.others;
-            // pc += op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -139,7 +139,6 @@ public:
             // 不应该跳，预测错误
             predictor.NotJump();
             pc = op.others;
-            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -162,10 +161,8 @@ public:
             // 应该跳，预测错误
             predictor.Jump();
             pc = op.others;
-            // pc += op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -175,7 +172,6 @@ public:
             // 不应该跳，预测错误
             predictor.NotJump();
             pc = op.others;
-            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -198,10 +194,8 @@ public:
             // 应该跳，预测错误
             predictor.Jump();
             pc = op.others;
-            // pc += op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -211,7 +205,6 @@ public:
             // 不应该跳，预测错误
             predictor.NotJump();
             pc = op.others;
-            // pc -= op.imm - 4;
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -234,10 +227,8 @@ public:
             // 应该跳，预测错误
             predictor.Jump();
             pc = op.others;
-            // pc += (op.imm - 4);
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
-                // pc -= 4;
             }
             while (!executeQueue.empty()) {
                 executeQueue.pop();
@@ -247,7 +238,6 @@ public:
             // 不应该跳，预测错误
             predictor.NotJump();
             pc = op.others;
-            // pc -= (op.imm - 4);
             while (!decodeQueue.empty()) {
                 decodeQueue.pop();
             }
@@ -261,26 +251,31 @@ public:
         ALUCheckReg(op.rs1, op.val1);
         MemOP cur(true, op.val1 + op.imm, 1, op.rd, true);
         memQueue.push(cur);
+        memCycle.push(loop + 1);
     }
     void LH(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         MemOP cur(true, op.val1 + op.imm, 2, op.rd, true);
         memQueue.push(cur);
+        memCycle.push(loop + 1);
     }
     void LW(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         MemOP cur(true, op.val1 + op.imm, 4, op.rd, false);
         memQueue.push(cur);
+        memCycle.push(loop + 1);
     }
     void LBU(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         MemOP cur(true, op.val1 + op.imm, 1, op.rd, false);
         memQueue.push(cur);
+        memCycle.push(loop + 1);
     }
     void LHU(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         MemOP cur(true, op.val1 + op.imm, 2, op.rd, false);
         memQueue.push(cur);
+        memCycle.push(loop + 1);
     }
 
     void SB(operation op) {
@@ -288,12 +283,14 @@ public:
         ALUCheckReg(op.rs2, op.val2);
         MemOP cur(false, op.val1 + op.imm, 1, op.val2 & 0xFFu, false);
         memQueue.push(cur);
+        memCycle.push(loop + 1);
     }
     void SH(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         ALUCheckReg(op.rs2, op.val2);
         MemOP cur(false, op.val1 + op.imm, 2, op.val2 & 0xFFFFu, false);
         memQueue.push(cur);
+        memCycle.push(loop + 1);
     }
     void SW(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -301,6 +298,7 @@ public:
         // cout << std::dec << op.rs1 << " " << op.imm << endl;
         MemOP cur(false, op.val1 + op.imm, 4, op.val2, false);
         memQueue.push(cur);
+        memCycle.push(loop + 1);
     }
 
     void ADDI(operation op) {
@@ -308,54 +306,63 @@ public:
         unsigned val = op.val1 + op.imm;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SLTI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         bool val = ((signed)op.val1 < (signed)op.imm);
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SLTIU(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         bool val = (op.val1 < op.imm);
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void XORI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 ^ op.imm;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void ORI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 | op.imm;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void ANDI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 & op.imm;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SLLI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 << op.rs2;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SRLI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = op.val1 >> op.rs2;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SRAI(operation op) {
         ALUCheckReg(op.rs1, op.val1);
         unsigned val = (signed)op.val1 >> (signed)op.rs2;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
 
     void ADD(operation op) {
@@ -364,6 +371,7 @@ public:
         unsigned val = op.val1 + op.val2;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SUB(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -371,6 +379,7 @@ public:
         unsigned val = op.val1 - op.val2;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SLL(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -378,6 +387,7 @@ public:
         unsigned val = op.val1 << (op.val2 & 0x1Fu);
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SLT(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -385,6 +395,7 @@ public:
         bool val = ((signed)op.val1 < (signed)op.val2);
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SLTU(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -392,6 +403,7 @@ public:
         bool val = (op.val1 < op.val2);
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void XOR(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -399,6 +411,7 @@ public:
         unsigned val = op.val1 ^ op.val2;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SRL(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -406,6 +419,7 @@ public:
         unsigned val = op.val1 >> (op.val2 & 0x1Fu);
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void SRA(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -413,6 +427,7 @@ public:
         unsigned val = (signed)op.val1 >> (signed)(op.val2 & 0x1Fu);
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void OR(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -420,6 +435,7 @@ public:
         unsigned val = op.val1 | op.val2;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
     void AND(operation op) {
         ALUCheckReg(op.rs1, op.val1);
@@ -427,6 +443,7 @@ public:
         unsigned val = op.val1 & op.val2;
         PreChangeReg(op.rd, val);
         writeReg.push(std::make_pair(op.rd, val));
+        writeRegCycle.push(loop + 1);
     }
 };
 

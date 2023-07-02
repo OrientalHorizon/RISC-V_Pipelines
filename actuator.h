@@ -13,16 +13,18 @@
 #include "predictor.h"
 #include "forwarding.h"
 
-extern unsigned reg[32], mem[300003], pc;
-extern bool halt;
 Parser parser;
 Predictor predictor;
 Decoder decoder;
 Executor executor;
 std::queue<std::pair<unsigned, std::pair<bool, unsigned> > > decodeQueue;
+std::queue<unsigned> decodeCycle;
 std::queue<operation> executeQueue;
-std::queue<std::pair<int, unsigned> > writeReg;
+std::queue<unsigned> executeCycle;
 std::queue<MemOP> memQueue;
+std::queue<unsigned> memCycle;
+std::queue<std::pair<int, unsigned> > writeReg;
+std::queue<unsigned> writeRegCycle;
 // 读 (true) 还是写 (false)，第二个元素是内存地址，第三个元素是存到哪里（读）或者是值（写）
 
 extern unsigned stall;
@@ -30,12 +32,12 @@ void AddStall(unsigned delta) {
     stall += delta;
 }
 
-void IF() { // Finished writing IF
-    if (halt) return;
+void InstructionFetch() { // Finished writing IF
+    if (_end) return;
     unsigned int cmd = parser.GetCommand();
     // cout << std::setfill('0') <<  std::setw(8) << std::hex << std::uppercase << cmd << endl;
     if (cmd == 0x0ff00513u) {
-        halt = true;
+        _end = true;
         return;
     }
 
@@ -66,21 +68,28 @@ void IF() { // Finished writing IF
     else {
         decodeQueue.push(std::make_pair(cmd, std::make_pair(false, 0u)));
     }
+    decodeCycle.push(loop + 1);
 }
 
-void WB() { // Finished writing WB
+void Writeback() { // Finished writing WB
     if (writeReg.empty()) return;
+    unsigned expected = writeRegCycle.front();
+    if (expected > loop) return;
     std::pair<int, unsigned> cur = writeReg.front();
     writeReg.pop();
+    writeRegCycle.pop();
     reg[cur.first] = cur.second;
     reg[0] = 0u;
 }
 
 void Decode() {
     if (decodeQueue.empty()) return;
+    unsigned expected = decodeCycle.front();
+    if (expected > loop) return;
     unsigned int cmd = decodeQueue.front().first;
     std::pair<bool, unsigned> branch = decodeQueue.front().second;
     decodeQueue.pop();
+    decodeCycle.pop();
     unsigned opcode = cmd & 0x7Fu;
     operation opt;
     switch (opcode) {
@@ -131,12 +140,16 @@ void Decode() {
         }
     }
     executeQueue.push(opt);
+    executeCycle.push(loop + 1);
 }
 
-void EX() {
+void ALU() {
     if (executeQueue.empty()) return;
+    unsigned expected = executeCycle.front();
+    if (expected > loop) return;
     operation opt = executeQueue.front();
     executeQueue.pop();
+    executeCycle.pop();
     switch (opt.op) {
         case LUI:
             executor.LUI(opt);
@@ -254,32 +267,33 @@ void EX() {
 
 void Mem() {
     if (memQueue.empty()) return;
+    unsigned expected = memCycle.front();
+    if (expected > loop) return;
     MemOP cur = memQueue.front();
     memQueue.pop();
+    memCycle.pop();
     if (cur.isRead) {
+        unsigned val;
         switch (cur.delta) {
             case 1: {
-                unsigned val = mem[cur.addr];
+                val = mem[cur.addr];
                 if (cur.extend) val = extend(val, 7);
-                PreChangeReg(cur.val, val);
-                writeReg.push(std::make_pair(cur.val, val));
                 break;
             }
             case 2: {
-                unsigned val = mem[cur.addr] | (mem[cur.addr + 1] << 8);
+                val = mem[cur.addr] | (mem[cur.addr + 1] << 8);
                 if (cur.extend) val = extend(val, 15);
-                PreChangeReg(cur.val, val);
-                writeReg.push(std::make_pair(cur.val, val));
                 break;
             }
             case 4: {
-                unsigned val = mem[cur.addr] | (mem[cur.addr + 1] << 8)
+                val = mem[cur.addr] | (mem[cur.addr + 1] << 8)
                         | (mem[cur.addr + 2] << 16) | (mem[cur.addr + 3] << 24);
-                PreChangeReg(cur.val, val);
-                writeReg.push(std::make_pair(cur.val, val));
                 break;
             }
         }
+        PreChangeReg(cur.val, val);
+        writeReg.push(std::make_pair(cur.val, val));
+        writeRegCycle.push(loop + 1);
     }
     else {
         switch (cur.delta) {

@@ -31,16 +31,4 @@ void PreChangeReg(unsigned pos, unsigned val) {
     }
 }
 
-//unsigned curMemAddrL, curMemAddrR, curMemVal;
-//unsigned GetMem(unsigned pos) {
-//    assert(pos < 300003 && pos >= 0);
-//    if (pos >= curMemAddrL && pos <= curMemAddrR) {
-//        return curMemVal;
-//    }
-//    return mem[pos];
-//}
-//void PreChangeMem(int l, int r, unsigned val) {
-//    curMemAddrL = l, curMemAddrR = r, curMemVal = val;
-//}
-
 #endif //INC_2_PIPELINE_FORWARDING_H

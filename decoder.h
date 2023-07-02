@@ -10,7 +10,7 @@
 #include "forwarding.h"
 
 class Decoder {
-    friend void IF();
+    friend void InstructionFetch();
 private:
     unsigned BTypeGetOffset(unsigned cmd) {
         std::bitset<32> tmp_bs(cmd), imm(0);
@@ -116,7 +116,6 @@ public:
         return ret;
     }
     operation STypeDecode(unsigned cmd) {
-        // cout << "reg[2] = " << std::dec << reg[2] << endl;
         operation ret; ret.opcode = cmd & 0x7fu;
         ret.rs1 = (cmd >> 15u) & 0x1Fu;
         ret.rs2 = (cmd >> 20u) & 0x1Fu;

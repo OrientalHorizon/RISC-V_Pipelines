@@ -11,7 +11,7 @@ using std::cin;
 using std::cout;
 using std::endl;
 unsigned int reg[32], mem[300003], pc;
-bool halt;
+bool _end;
 unsigned loop;
 unsigned stall;
 

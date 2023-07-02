@@ -5,8 +5,7 @@
 #include <bits/stdc++.h>
 #include "parser.h"
 #include "actuator.h"
-#include "forwarding.h"
-extern unsigned int reg[32], mem[300003], pc;
+
 signed main() {
     // freopen("multiarray.data", "r", stdin);
     // freopen("array_test1.out", "w", stdout);
@@ -17,24 +16,24 @@ signed main() {
         // printf("%d\n", halt);
         reg[0] = 0u;
         if (stall) {
-            WB();
+            Writeback();
             Mem();
-            EX();
+            ALU();
             Decode();
             --stall;
         }
-        WB();
+        Writeback();
         Mem();
-        EX();
+        ALU();
         Decode();
-        IF();
-//        cout << decodeQueue.empty() << executeQueue.empty() << memQueue.empty() << writeReg.empty()
-//        << endl;
-        if (halt && memQueue.empty() && writeReg.empty()
+        InstructionFetch();
+
+        if (_end && memQueue.empty() && writeReg.empty()
         && decodeQueue.empty() && executeQueue.empty()) break;
         ++loop;
         // cout << std::dec << (reg[10] & 0xFFu) << endl;
     }
     cout << std::dec << (reg[10] & 0xFFu) << endl;
+    // printf("%lf\n", predictor.GetAccuracy());
     return 0;
 }
