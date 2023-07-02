@@ -7,7 +7,7 @@
 #include "actuator.h"
 
 signed main() {
-    freopen("superloop.data", "r", stdin);
+    // freopen("superloop.data", "r", stdin);
     // freopen("array_test1.out", "w", stdout);
     pc = 0u;
     parser.Init();
