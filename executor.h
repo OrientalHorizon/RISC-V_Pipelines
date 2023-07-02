@@ -33,10 +33,10 @@ public:
         writeRegCycle.push(loop + 2);
     }
     void JAL(const operation &op) {
-        PreChangeReg(op.rd, pc);
+        PreChangeReg(op.rd, op.val1);
         // 强制跳转！
-        writeReg.push(std::make_pair(op.rd, pc));
-        pc += op.imm - 4;
+        writeReg.push(std::make_pair(op.rd, op.val1));
+        // pc += op.imm - 4;
         writeRegCycle.push(loop + 2);
     }
     void JALR(const operation &op) {

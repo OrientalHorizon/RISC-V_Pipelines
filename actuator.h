@@ -63,8 +63,14 @@ void InstructionFetch() { // Finished writing IF
         decodeCycle.push(loop + 1);
         AddStall(3u);
     }
-    else if (opcode == 0b1101111 || opcode == 0b1100111) {
-        // JAL & JALR
+    else if (opcode == 0b1101111) {
+        // JAL
+        decodeQueue.push(std::make_pair(cmd, std::make_pair(true, pc)));
+        decodeCycle.push(loop + 1);
+        pc += decoder.JALGetOffset(cmd) - 4;
+    }
+    else if (opcode == 0b1100111) {
+        // JALR
         decodeQueue.push(std::make_pair(cmd, std::make_pair(false, 0u)));
         decodeCycle.push(loop + 1);
         AddStall(2u);
@@ -116,7 +122,7 @@ void Decode() {
         }
         case 0b1101111: {
             // JAL
-            opt = decoder.JALDecode(cmd);
+            opt = decoder.JALDecode(cmd, branch.second);
             break;
         }
         case 0b1100111: {

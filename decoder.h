@@ -12,6 +12,18 @@
 class Decoder {
     friend void InstructionFetch();
 private:
+    unsigned JALGetOffset(unsigned cmd) {
+        std::bitset<32> tmp_bs(cmd), imm(0u);
+        for (int i = 1; i <= 10; ++i) {
+            imm[i] = tmp_bs[i + 20];
+        }
+        imm[11] = tmp_bs[20];
+        for (int i = 12; i <= 19; ++i) {
+            imm[i] = tmp_bs[i];
+        }
+        imm[20] = tmp_bs[31];
+        return extend(imm.to_ulong(), 20);
+    }
     unsigned BTypeGetOffset(unsigned cmd) {
         std::bitset<32> tmp_bs(cmd), imm(0);
         for (int i = 1; i <= 4; ++i) {
@@ -56,19 +68,10 @@ public:
         ret.op = AUIPC;
         return ret;
     }
-    operation JALDecode(unsigned cmd) {
+    operation JALDecode(unsigned cmd, unsigned former_pc) {
         operation ret; ret.op = JAL, ret.opcode = cmd & 0x7fu;
-        std::bitset<32> tmp_bs(cmd), imm(0u);
-        for (int i = 1; i <= 10; ++i) {
-            imm[i] = tmp_bs[i + 20];
-        }
-        imm[11] = tmp_bs[20];
-        for (int i = 12; i <= 19; ++i) {
-            imm[i] = tmp_bs[i];
-        }
-        imm[20] = tmp_bs[31];
-        unsigned tmp = extend(imm.to_ulong(), 20);
-        ret.imm = tmp, ret.rd = (cmd >> 7u) & 0x1fu;
+        ret.imm = JALGetOffset(cmd), ret.rd = (cmd >> 7u) & 0x1fu;
+        ret.val1 = former_pc;
         return ret;
     }
     operation JALRDecode(unsigned cmd) {
