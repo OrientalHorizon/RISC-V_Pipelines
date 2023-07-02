@@ -78,7 +78,7 @@ void InstructionFetch() { // Finished writing IF
 void Writeback() { // Finished writing WB
     if (writeReg.empty()) return;
     unsigned expected = writeRegCycle.front();
-    if (expected > loop) return;
+    // if (expected > loop) return;
     std::pair<int, unsigned> cur = writeReg.front();
     writeReg.pop();
     writeRegCycle.pop();
@@ -89,7 +89,7 @@ void Writeback() { // Finished writing WB
 void Decode() {
     if (decodeQueue.empty()) return;
     unsigned expected = decodeCycle.front();
-    if (expected > loop) return;
+    // if (expected > loop) return;
     unsigned int cmd = decodeQueue.front().first;
     std::pair<bool, unsigned> branch = decodeQueue.front().second;
     decodeQueue.pop();
@@ -150,7 +150,7 @@ void Decode() {
 void ALU() {
     if (executeQueue.empty()) return;
     unsigned expected = executeCycle.front();
-    if (expected > loop) return;
+    // if (expected > loop) return;
     operation opt = executeQueue.front();
     executeQueue.pop();
     executeCycle.pop();
@@ -272,7 +272,7 @@ void ALU() {
 void Mem() {
     if (memQueue.empty()) return;
     unsigned expected = memCycle.front();
-    if (expected > loop) return;
+    // if (expected > loop) return;
     MemOP cur = memQueue.front();
     memQueue.pop();
     memCycle.pop();
