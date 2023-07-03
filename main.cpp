@@ -7,7 +7,7 @@
 #include "actuator.h"
 
 signed main() {
-    // freopen("pi.data", "r", stdin);
+    // freopen("tak.data", "r", stdin);
     pc = 0u;
     parser.Init();
     while (true) {
@@ -40,6 +40,6 @@ signed main() {
     }
     // cout << loop << endl;
     cout << std::dec << (reg[10] & 0xFFu) << endl;
-    // printf("%lf\n", predictor.GetAccuracy());
+    // printf("%.1lf\%\n", predictor.GetAccuracy() * 100);
     return 0;
 }
