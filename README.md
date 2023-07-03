@@ -1,6 +1,6 @@
 # RISC-V_Pipelines
 
-五级流水图：![image-20230703112123245](C:\Users\iakno\AppData\Roaming\Typora\typora-user-images\image-20230703112123245.png)
+五级流水图：![image-20230703112123245](https://cdn.luogu.com.cn/upload/image_hosting/u229c45b.png)
 
 Forwarding: 在 Reg 阶段检查 forwarding line，可以读到上上条指令执行后相应寄存器的值；
 
